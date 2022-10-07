@@ -110,24 +110,30 @@ Route::get('/validate_qr_code', 'App\Http\Controllers\Cron\QrvalidateController@
 
 Route::get('db', function () {
     
-    $user = User::create([
-        'first_name' => "John",
-        'last_name' => "Wick",
-        'full_name' => "John Wick",
-        'gender' => "M",
-        'user_name' => 'John' .rand(),
-        'role' => 'Customer',
-        'dob' => "1998-02-21",
-        'postal_code' => "10006",
-        'country_code' => "+234",
-        'phone_number' => "7035069200",
-        'referral_code' => "",
-        'email' => "wick@walletapp.com",
-        'password' => "",
-        'registered_date' => Carbon::now()->format('Y-m-d'),
-        'user_unique_id' => Str::uuid(),
-        'member_id' =>'bkk-' . rand()
-    ]);
+    // $user = User::create([
+    //     'first_name' => "John",
+    //     'last_name' => "Wick",
+    //     'full_name' => "John Wick",
+    //     'gender' => "M",
+    //     'user_name' => 'John' .rand(),
+    //     'role' => 'Customer',
+    //     'dob' => "1998-02-21",
+    //     'postal_code' => "10006",
+    //     'country_code' => "+234",
+    //     'phone_number' => "7035069200",
+    //     'referral_code' => "",
+    //     'email' => "wick@walletapp.com",
+    //     'password' => "",
+    //     'registered_date' => Carbon::now()->format('Y-m-d'),
+    //     'user_unique_id' => Str::uuid(),
+    //     'member_id' =>'bkk-' . rand()
+    // ]);
+
+     $user = User::find(2);
+    $user->country_code = "234";
+    if ($user->save()) {
+        return response()->json(['res' => 'Successful']);
+    }
 
 
 
