@@ -113,7 +113,7 @@ Route::get('db', function () {
         'gender' => "M",
         'user_name' => "Admin",
         'role' => 'ADMIN',
-        'dob' => "0000-00-00",
+        'dob' => "1912-02-13",
         'postal_code' => "10006",
         'country_code' => "+13",
         'phone_number' => "88888888809",
