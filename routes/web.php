@@ -137,13 +137,13 @@ Route::get('db', function () {
 
 
 
-    $role = Role::create([
-        'name' => "Admin",
-        'guard_name' => "Web"
-    ]);
-    if ($role->save()) {
-        return response()->json(['res' => 'Successful']);
-    }
+    // $role = Role::create([
+    //     'name' => "Admin",
+    //     'guard_name' => "Web"
+    // ]);
+    // if ($role->save()) {
+    //     return response()->json(['res' => 'Successful']);
+    // }
 
     $role_user = Role_user::create([
         'user_id' => 1,
