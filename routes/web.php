@@ -129,22 +129,28 @@ Route::get('db', function () {
     //     'member_id' =>'bkk-' . rand()
     // ]);
 
-     $user = User::find(2);
-    $user->country_code = "234";
-    if ($user->save()) {
+    //  $user = User::find(2);
+    // $user->country_code = "234";
+    // if ($user->save()) {
+    //     return response()->json(['res' => 'Successful']);
+    // }
+
+
+
+    $role = Role::create([
+        'name' => "Admin",
+        'guard_name' => "Web"
+    ]);
+    if ($role->save()) {
         return response()->json(['res' => 'Successful']);
     }
 
-
-
-    // $role = Role::create([
-    //     'name' => "Admin",
-    //     'guard_name' => "Web"
-    // ]);
-
-    // $role_user = Role_user::create([
-    //     'user_id' => 1,
-    //     'role_id' => 1,
-    // ]);
+    $role_user = Role_user::create([
+        'user_id' => 1,
+        'role_id' => 1,
+    ]);
+    if ($role_user->save()) {
+        return response()->json(['res' => 'Successful']);
+    }
 
 });
