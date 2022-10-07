@@ -315,7 +315,7 @@ class AuthController extends BaseController
         try {
             $user = User::findorFail($request->user()->id);
 
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
 
                 $messages = [
                     'first_name.required' => 'First name is required',
@@ -394,7 +394,7 @@ class AuthController extends BaseController
             $user_id = $request->user()->id;
             $user = User::findorFail($user_id);
 
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
                 return $this->sendResponse($user, 'User Profile');
             } else {
                 return $this->sendError('Not Allowed', '', 422);
@@ -408,7 +408,7 @@ class AuthController extends BaseController
     {
         try {
             $user = User::findorFail($request->user()->id);
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
                 $validator = Validator::make($request->all(), [
                     'pin' => 'required|digits:6|numeric',
                     'retype_pin' => 'same:pin|required_with:pin'
@@ -466,7 +466,7 @@ class AuthController extends BaseController
     {
         try {
             $user = User::findorFail($request->user()->id);
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
                 $validator = Validator::make($request->all(), [
                     'pin' => 'required|digits:6|numeric',
                     'retype_pin' => 'same:pin|required_with:pin'
@@ -495,7 +495,7 @@ class AuthController extends BaseController
     {
         try {
             $user = User::findorFail($request->user()->id);
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
                 $validator = Validator::make($request->all(), [
                     'old_pin' => 'required',
                     'new_pin' => 'required|digits:6|numeric',

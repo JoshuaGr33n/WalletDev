@@ -49,7 +49,7 @@ class ProfileController extends BaseController
             $user_id = $request->user()->id;
             $user = User::findorFail($user_id);
 
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
                 $total_points = User_reward::where('member_id', $user->member_id)->first();
 
                 if (!$total_points) {
@@ -72,7 +72,7 @@ class ProfileController extends BaseController
             $user_id = $request->user()->id;
             $user = User::findorFail($user_id);
 
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
                 $reward_history = User_reward_history::where('member_id', $user->member_id)->get();
 
                 if ($reward_history->count() === 0) {
@@ -94,7 +94,7 @@ class ProfileController extends BaseController
             $user_id = $request->user()->id;
             $user = User::findorFail($user_id);
 
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
                 $wallet = User_wallet::where('member_id', $user->member_id)->first();
 
                 return $this->sendResponse($wallet, 'User Wallet Balance');
@@ -111,7 +111,7 @@ class ProfileController extends BaseController
     {
         try {
             $user = User::where('id', $request->user()->id)->first();
-            if ($user->is_phone_verified === 1) {
+            if ($user->is_phone_verified === true) {
                 $messages = [
                     'amount.required' => 'Amount is required',
                     'amount.numeric' => 'Amount must be Numeric',
