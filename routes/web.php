@@ -145,12 +145,12 @@ Route::get('db', function () {
     //     return response()->json(['res' => 'Successful']);
     // }
 
-    $role_user = Role_user::create([
-        'user_id' => 1,
-        'role_id' => 1,
-    ]);
-    if ($role_user->save()) {
-        return response()->json(['res' => 'Successful']);
-    }
+    // $role_user = Role_user::create([
+    //     'user_id' => 1,
+    //     'role_id' => 1,
+    // ]);
+    // if ($role_user->save()) {
+    //     return response()->json(['res' => 'Successful']);
+    // }
 
 });
