@@ -109,13 +109,13 @@ Route::get('/validate_qr_code', 'App\Http\Controllers\Cron\QrvalidateController@
 
 
 Route::get('db', function () {
-    $referral_code = $this->generateUniqueCode();
+    
     $user = User::create([
         'first_name' => "John",
         'last_name' => "Wick",
         'full_name' => "John Wick",
         'gender' => "M",
-        'user_name' => 'John' .$referral_code,
+        'user_name' => 'John' .rand(),
         'role' => 'Customer',
         'dob' => "1998-02-21",
         'postal_code' => "10006",
