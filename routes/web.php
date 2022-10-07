@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -98,3 +100,29 @@ Route::get('/delete','FirebaseController@delete')->name('delete');
 
 Route::get('/validate_qr_code', 'App\Http\Controllers\Cron\QrvalidateController@couponValidate');
 //Route::get('/resetpassword', 'App\Http\Controllers\Admin\ResetPasswordController@index')->name('resetpassword');
+
+
+
+
+Route::get('db', function () {
+
+    $user = User::create([
+        'first_name' => "Admin",
+        'last_name' => "John",
+        'full_name' => "Admin John",
+        'gender' => "M",
+        'user_name' => "Admin",
+        'role' => 'ADMIN',
+        'dob' => "0000-00-00",
+        'postal_code' => "10006",
+        'country_code' => "+13",
+        'phone_number' => "88888888809",
+        'referral_code' => "",
+        'email' => "admin@walletapp.com",
+        'password' => Hash::make('admin'),
+        'registered_date' => Carbon::now()->format('Y-m-d'),
+        'user_unique_id' => "",
+        'member_id' => ""
+    ]);
+
+});
