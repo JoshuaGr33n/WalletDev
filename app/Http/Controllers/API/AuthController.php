@@ -61,6 +61,8 @@ class AuthController extends BaseController
         return $code;
     }
 
+     
+
     public function register(Request $request)
     {
         try {
@@ -106,52 +108,43 @@ class AuthController extends BaseController
             } else {
                 $referral_code = $this->generateUniqueCode();
                 $dob = Carbon::parse($request->dob)->format('Y-m-d');
-                // $user = User::create([
-                //     // 'first_name' => $request->first_name,
-                //     // 'last_name' => $request->last_name,
-                //     // 'full_name' => $request->first_name . ' ' . $request->last_name,
-                //     // 'gender' => $request->gender,
-                //     // 'user_name' => $request->first_name . '' . $referral_code,
-                //     // 'role' => 'CUSTOMER',
-                //     // 'dob' => $dob,
-                //     // 'postal_code' => $request->postal_code,
-                //     // 'country_code' => $request->country_code,
-                //     // 'phone_number' => $request->phone_number,
-                //     // 'referral_code' => $referral_code,
-                //     // 'email' => $request->email,
-                //     // 'password' => "",
-                //     // 'registered_date' => Carbon::now()->format('Y-m-d'),
-                //     // 'user_unique_id' => Str::uuid(),
-                //     // 'member_id' => 'bkk-' . rand()
-                // ]);
+                $user = User::create([
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'full_name' => $request->first_name . ' ' . $request->last_name,
+                    'gender' => $request->gender,
+                    'user_name' => $request->first_name . '' . $referral_code,
+                    'role' => 'CUSTOMER',
+                    'dob' => $dob,
+                    'postal_code' => $request->postal_code,
+                    'country_code' => $request->country_code,
+                    'phone_number' => $request->phone_number,
+                    'referral_code' => $referral_code,
+                    'email' => $request->email,
+                    'password' => "",
+                    'registered_date' => Carbon::now()->format('Y-m-d'),
+                    'user_unique_id' => Str::uuid(),
+                    'member_id' => 'bkk-' . rand()
+                ]);
 
-                // $token = $user->createToken('temp_auth_token')->plainTextToken;
-                // $user->roles()->attach(Role::where('name', 'Customer')->first());
+                $token = $user->createToken('temp_auth_token')->plainTextToken;
+                $user->roles()->attach(Role::where('name', 'Customer')->first());
 
-                // UserInfo::create([
-                //     'user_id' => $user->id,
-                // ]);
+                UserInfo::create([
+                    'user_id' => $user->id,
+                ]);
 
-                // $response = [
-                //     'temp_token' => $token,
-                //     'token_type' => 'Bearer',
-                //     'country_code' =>  $user->country_code,
-                //     'phone_number' =>  $user->phone_number,
-                // ];
-                // $message = $this->generateOTP($token);
-                // Mail::to('joshuaoleru@yahoo.com')->send(new SendMail());
-                Mail::send('emails.emailotp', ['emailotp' => '88989898'], function($message){
-                $message->to('joshuaoleru@yahoo.com');
-                $message->from('joshuaoleru@gmail.com');
-                $message->subject('From Digital Ladipo:: Delivery Completed');
-                });
+                $response = [
+                    'temp_token' => $token,
+                    'token_type' => 'Bearer',
+                    'country_code' =>  $user->country_code,
+                    'phone_number' =>  $user->phone_number,
+                ];
+                $message = $this->generateOTP($token);
+                if ($message == 'error') {
+                    return $this->sendError('OTP Not Sent', '', 400);
+                }
 
-                // if ($message == 'error') {
-                //     return $this->sendError('OTP Not Sent', '', 400);
-                // }
-
-                $message ='kk';
-                $response ="jj";
                 return $this->sendResponse($response, $message);
             }
         } catch (\Exception $e) {
@@ -160,6 +153,8 @@ class AuthController extends BaseController
         }
     }
 
+
+    
     public function login(Request $request)
     {
         try {
@@ -207,7 +202,6 @@ class AuthController extends BaseController
         }
     }
 
-    // public function generateOTP(Request $request) {
     private function generateOTP($token)
     {
         try {
@@ -217,27 +211,21 @@ class AuthController extends BaseController
             $otp = rand(100000, 999999);
             Log::info("otp = " . $otp);
 
-            // $recipient = "";
-            // $message = $otp . " is your One-Time Verification Code.";
+            $recipient = $user->email;
+            $message = $otp . " is your One-Time Verification Code.";
 
             // $errorCode = $this->sendMessage($message, $recipient);
 
-            // Mail::to('joshuaoleru@gmail.com')->send(new SendMail());
+            Mail::send('emails.emailotp', ['emailotp' => $message, 'email' => $user->email], function($message) use($user){
+                $message->to($user->email);
+                $message->from('test@wallet.com');
+                $message->subject('Wallet.dev');
+                });
 
-            // Mail::send('emails.emailotp', ['emailotp' => $otp])->to('joshuaoleru@gmail.com')->from('test@wallet.com')->subject('Your OTP');
-              
-
-            if (Mail::failures()) {
-                return response()->Fail('Sorry! Please try again latter');
-            } else {
-                return response()->success('Great! Successfully send in your mail');
+            $errorCode = null;
+            if ($errorCode != null) {
+                return 'error';
             }
-
-
-            // $errorCode = null;
-            // if ($errorCode != null) {
-            //     return 'error';
-            // }
 
             $usercode = UserCode::create([
                 'user_id' => $user->id,

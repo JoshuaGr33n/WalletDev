@@ -34,3 +34,5 @@ class SendMail extends Mailable
                ->view('emails.emailotp',["user"=>"jjjjj","title"=>"Register"]);
     }
 }
+// call on controller
+// Mail::to('joshuaoleru@gmail.com')->send(new SendMail());

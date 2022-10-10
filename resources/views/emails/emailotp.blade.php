@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	    <title>Welcome Email</title>
+	    <title>Your OTP</title>
 	</head>
 	<body>
-		<h2>Your Email OTP For registration</h2>
+		<h2>OTP</h2>
 		<br/>
 		{{ $emailotp }}
 		<br/>
