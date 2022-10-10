@@ -130,9 +130,9 @@ class AuthController extends BaseController
                 $token = $user->createToken('temp_auth_token')->plainTextToken;
                 $user->roles()->attach(Role::where('name', 'Customer')->first());
 
-                UserInfo::create([
-                    'user_id' => $user->id,
-                ]);
+                // UserInfo::create([
+                //     'user_id' => $user->id,
+                // ]);
 
                 $response = [
                     'temp_token' => $token,
