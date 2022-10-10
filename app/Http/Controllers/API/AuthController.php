@@ -142,7 +142,7 @@ class AuthController extends BaseController
                 // Mail::to('joshuaoleru@yahoo.com')->send(new SendMail());
                 Mail::send('emails.emailotp', ['emailotp' => '88989898'], function($message){
                 $message->to('joshuaoleru@yahoo.com');
-                $message->from('test@wallet.com');
+                $message->from('joshuaoleru@gmail.com');
                 $message->subject('From Digital Ladipo:: Delivery Completed');
                 });
 
