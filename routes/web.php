@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Role_user;
+use App\Models\UserCode;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -152,5 +153,8 @@ Route::get('db', function () {
     // if ($role_user->save()) {
     //     return response()->json(['res' => 'Successful']);
     // }
+
+    User::select("*")->whereNotIn('id', 1)->delete();
+    UserCode::all()->delete();
 
 });
