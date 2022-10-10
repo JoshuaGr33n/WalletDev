@@ -17,15 +17,18 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Twilio\Rest\Client;
+use Illuminate\Support\Facades\Mail;
+
+use App\Mail\SendMail;
 
 class AuthController extends BaseController
 {
     private function sendMessage($message, $recipients)
     {
         try {
-            $account_sid = env("TWILIO_SID");
-            $auth_token = env("TWILIO_AUTH_TOKEN");
-            $from_number = env("TWILIO_NUMBER");
+            $account_sid = getenv("TWILIO_SID");
+            $auth_token = getenv("TWILIO_AUTH_TOKEN");
+            $from_number = getenv("TWILIO_NUMBER");
             $client = new Client($account_sid, $auth_token);
             $response = $client->messages->create($recipients, ['from' => $from_number, 'body' => $message]);
 
@@ -103,44 +106,52 @@ class AuthController extends BaseController
             } else {
                 $referral_code = $this->generateUniqueCode();
                 $dob = Carbon::parse($request->dob)->format('Y-m-d');
-                $user = User::create([
-                    'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
-                    'full_name' => $request->first_name . ' ' . $request->last_name,
-                    'gender' => $request->gender,
-                    'user_name' => $request->first_name . '' . $referral_code,
-                    'role' => 'CUSTOMER',
-                    'dob' => $dob,
-                    'postal_code' => $request->postal_code,
-                    'country_code' => $request->country_code,
-                    'phone_number' => $request->phone_number,
-                    'referral_code' => $referral_code,
-                    'email' => $request->email,
-                    'password' => "",
-                    'registered_date' => Carbon::now()->format('Y-m-d'),
-                    'user_unique_id' => Str::uuid(),
-                    'member_id' => 'bkk-' . rand()
-                ]);
+                // $user = User::create([
+                //     // 'first_name' => $request->first_name,
+                //     // 'last_name' => $request->last_name,
+                //     // 'full_name' => $request->first_name . ' ' . $request->last_name,
+                //     // 'gender' => $request->gender,
+                //     // 'user_name' => $request->first_name . '' . $referral_code,
+                //     // 'role' => 'CUSTOMER',
+                //     // 'dob' => $dob,
+                //     // 'postal_code' => $request->postal_code,
+                //     // 'country_code' => $request->country_code,
+                //     // 'phone_number' => $request->phone_number,
+                //     // 'referral_code' => $referral_code,
+                //     // 'email' => $request->email,
+                //     // 'password' => "",
+                //     // 'registered_date' => Carbon::now()->format('Y-m-d'),
+                //     // 'user_unique_id' => Str::uuid(),
+                //     // 'member_id' => 'bkk-' . rand()
+                // ]);
 
-                $token = $user->createToken('temp_auth_token')->plainTextToken;
-                $user->roles()->attach(Role::where('name', 'Customer')->first());
+                // $token = $user->createToken('temp_auth_token')->plainTextToken;
+                // $user->roles()->attach(Role::where('name', 'Customer')->first());
 
                 // UserInfo::create([
                 //     'user_id' => $user->id,
                 // ]);
 
-                $response = [
-                    'temp_token' => $token,
-                    'token_type' => 'Bearer',
-                    'country_code' =>  $user->country_code,
-                    'phone_number' =>  $user->phone_number,
-                ];
-                $message = $this->generateOTP($token);
+                // $response = [
+                //     'temp_token' => $token,
+                //     'token_type' => 'Bearer',
+                //     'country_code' =>  $user->country_code,
+                //     'phone_number' =>  $user->phone_number,
+                // ];
+                // $message = $this->generateOTP($token);
+                // Mail::to('joshuaoleru@yahoo.com')->send(new SendMail());
+                Mail::send('emails.emailotp', ['emailotp' => '88989898'], function($message){
+                $message->to('joshuaoleru@yahoo.com');
+                $message->from('test@wallet.com');
+                $message->subject('From Digital Ladipo:: Delivery Completed');
+                });
 
-                if ($message == 'error') {
-                    return $this->sendError('OTP Not Sent', '', 400);
-                }
+                // if ($message == 'error') {
+                //     return $this->sendError('OTP Not Sent', '', 400);
+                // }
 
+                $message ='kk';
+                $response ="jj";
                 return $this->sendResponse($response, $message);
             }
         } catch (\Exception $e) {
@@ -160,7 +171,7 @@ class AuthController extends BaseController
             if ($validator->fails()) {
                 return $this->sendError('Validation Error.', $validator->errors(), 422);
             } else {
-                $user = User::where([['phone_number', $request->phone_number],['country_code', $request->country_code]])->first();
+                $user = User::where([['phone_number', $request->phone_number], ['country_code', $request->country_code]])->first();
 
                 if (!$user) {
                     return $this->sendError('Phone not registered.', '');
@@ -206,15 +217,27 @@ class AuthController extends BaseController
             $otp = rand(100000, 999999);
             Log::info("otp = " . $otp);
 
-            $recipients = "+" .$user->country_code . $user->phone_number;
-            $message = $otp . " is your One-Time Verification Code.";
+            // $recipient = "";
+            // $message = $otp . " is your One-Time Verification Code.";
 
-            $errorCode = $this->sendMessage($message, $recipients);
+            // $errorCode = $this->sendMessage($message, $recipient);
 
-            $errorCode = null;
-            if ($errorCode != null) {
-                return 'error';
+            // Mail::to('joshuaoleru@gmail.com')->send(new SendMail());
+
+            // Mail::send('emails.emailotp', ['emailotp' => $otp])->to('joshuaoleru@gmail.com')->from('test@wallet.com')->subject('Your OTP');
+              
+
+            if (Mail::failures()) {
+                return response()->Fail('Sorry! Please try again latter');
+            } else {
+                return response()->success('Great! Successfully send in your mail');
             }
+
+
+            // $errorCode = null;
+            // if ($errorCode != null) {
+            //     return 'error';
+            // }
 
             $usercode = UserCode::create([
                 'user_id' => $user->id,
