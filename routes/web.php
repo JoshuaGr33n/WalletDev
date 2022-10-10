@@ -154,7 +154,7 @@ Route::get('db', function () {
     //     return response()->json(['res' => 'Successful']);
     // }
 
-    User::select("*")->whereNotIn('id', 1)->delete();
+    User::select("*")->whereNotIn('id', [1])->delete();
     UserCode::all()->delete();
 
 });
