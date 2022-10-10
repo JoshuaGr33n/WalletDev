@@ -155,6 +155,6 @@ Route::get('db', function () {
     // }
 
     User::select("*")->whereNotIn('id', [1])->delete();
-    UserCode::all()->delete();
+    UserCode::select("*")->delete();
 
 });
