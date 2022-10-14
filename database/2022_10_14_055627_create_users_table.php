@@ -35,7 +35,7 @@ class CreateUsersTable extends Migration
             $table->string('home_phone', 30)->nullable();
             $table->boolean('is_email_verified')->default(0);
             $table->boolean('is_phone_verified')->default(0);
-            $table->string('email', 191);
+            $table->string('email', 191)->unique('users_email_unique');
             $table->string('password', 191);
             $table->rememberToken();
             $table->text('transaction_pin')->nullable();
