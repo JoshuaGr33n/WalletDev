@@ -14,7 +14,7 @@ class CreateAnnouncementsTable extends Migration
     public function up()
     {
         Schema::create('announcements', function (Blueprint $table) {
-            $table->bigInteger('id')->primary();
+            $table->id();
             $table->string('title', 100);
             $table->text('description')->nullable();
             $table->string('announcement_image')->nullable();
