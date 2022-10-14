@@ -14,7 +14,7 @@ class CreateUserWalletTransactionsTable extends Migration
     public function up()
     {
         Schema::create('user__wallet__transactions', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->id();
             $table->string('transaction_id');
             $table->string('receipt_no');
             $table->integer('user_id');

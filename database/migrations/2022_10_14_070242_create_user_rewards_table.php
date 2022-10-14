@@ -14,7 +14,7 @@ class CreateUserRewardsTable extends Migration
     public function up()
     {
         Schema::create('user_rewards', function (Blueprint $table) {
-            $table->bigInteger('id')->primary();
+            $table->id();
             $table->bigInteger('user_id');
             $table->string('member_id');
             $table->decimal('reward_point', 10, 2)->nullable();

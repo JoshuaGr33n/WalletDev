@@ -14,7 +14,7 @@ class CreateUserWalletsTable extends Migration
     public function up()
     {
         Schema::create('user_wallets', function (Blueprint $table) {
-            $table->bigInteger('id')->primary();
+            $table->id();
             $table->bigInteger('user_id');
             $table->string('member_id', 30);
             $table->string('wallet_address');

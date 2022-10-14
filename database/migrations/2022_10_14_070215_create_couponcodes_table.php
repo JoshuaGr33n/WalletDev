@@ -14,7 +14,7 @@ class CreateCouponcodesTable extends Migration
     public function up()
     {
         Schema::create('couponcodes', function (Blueprint $table) {
-            $table->bigInteger('id')->primary();
+            $table->id();
             $table->bigInteger('user_id');
             $table->integer('type')->default(0)->comment("1 - top-up, 2 - paid, 3 - get user info");
             $table->decimal('amount', 10, 2)->nullable();

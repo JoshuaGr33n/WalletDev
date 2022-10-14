@@ -14,7 +14,7 @@ class CreateMerchantsTable extends Migration
     public function up()
     {
         Schema::create('merchants', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->id();
             $table->string('merchant_id', 50)->nullable();
             $table->integer('merchant_user_id')->nullable();
             $table->string('company_name', 100)->nullable();

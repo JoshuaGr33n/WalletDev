@@ -14,7 +14,7 @@ class CreateUserInfosTable extends Migration
     public function up()
     {
         Schema::create('user_infos', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->id();
             $table->integer('user_id')->index('user_id')->comment("References users");
             $table->integer('area_id')->nullable();
             $table->string('wallet_balance', 20)->nullable();

@@ -14,7 +14,7 @@ class CreateUserDeviceInfoTable extends Migration
     public function up()
     {
         Schema::create('user_device_info', function (Blueprint $table) {
-            $table->bigInteger('id')->primary();
+            $table->id();
             $table->bigInteger('user_id')->comment("refer user table");
             $table->string('app_version', 20);
             $table->integer('device_type')->comment("1-iOS,2-Android");

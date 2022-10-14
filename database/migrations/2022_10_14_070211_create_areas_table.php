@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCategoriesTable extends Migration
+class CreateAreasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateCategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->integer('id')->primary();
-            $table->string('category_name');
+        Schema::create('areas', function (Blueprint $table) {
+            $table->id();
+            $table->string('area_name');
+            $table->integer('pincode');
             $table->tinyInteger('status')->comment("1. Active, 2. Inactive, 3. Deleted");
-            $table->integer('created_by');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->timestamp('deleted_at')->nullable();
@@ -31,6 +31,6 @@ class CreateCategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('areas');
     }
 }

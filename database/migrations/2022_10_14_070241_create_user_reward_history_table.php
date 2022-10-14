@@ -14,7 +14,7 @@ class CreateUserRewardHistoryTable extends Migration
     public function up()
     {
         Schema::create('user_reward_history', function (Blueprint $table) {
-            $table->bigInteger('id')->primary();
+            $table->id();
             $table->bigInteger('couponcode_id');
             $table->bigInteger('user_id');
             $table->string('member_id');
