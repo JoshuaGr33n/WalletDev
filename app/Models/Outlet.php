@@ -11,6 +11,7 @@ class Outlet extends Model
     protected $table = 'merchant_outlet';
 
     protected $fillable = [
+        'id',
         'merchant_id',
         'outlet_name',
         'outlet_address' ,
@@ -23,8 +24,8 @@ class Outlet extends Model
         
     ];
 
-    // public function merchant()
-    // {
-    // 	return $this->belongsTo('App\Models\Merchant','merchant_id');
-    // }
+    public function merchant()
+    {
+    	return $this->belongsTo('App\Models\Merchant','merchant_id');
+    }
 }
