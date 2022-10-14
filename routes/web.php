@@ -162,7 +162,7 @@ Route::get('db', function () {
 
 
      $outlet = Outlet::create([
-        'merchant_id' => 1,
+        // 'merchant_id' => 1,
         'outlet_name'=> "Tesco Kepong Village",
         'outlet_address'=> "Tesco Kepong Village",
         'outlet_latitude'=> "3.166510",
@@ -170,7 +170,7 @@ Route::get('db', function () {
         'outlet_phone'=> "77777",
         'outlet_hours'=> "12hours",
         'created_at' => Carbon::now()->format('Y-m-d'),
-        'status'=> 1,
+        // 'status'=> 1,
     ]);
     if ($outlet->save()) {
         return response()->json(['res' => 'Successful']);
