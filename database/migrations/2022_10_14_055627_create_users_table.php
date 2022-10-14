@@ -24,7 +24,7 @@ class CreateUsersTable extends Migration
             $table->string('user_name', 60)->nullable();
             $table->string('referral_code')->nullable();
             $table->string('role')->nullable();
-            $table->bit('donotdisturb', 1)->default(b'0');
+            $table->int('donotdisturb', 11)->default(0);
             $table->date('dob')->nullable();
             $table->string('photo')->nullable();
             $table->string('country_code', 15)->nullable();
