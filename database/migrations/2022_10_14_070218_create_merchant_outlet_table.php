@@ -14,7 +14,7 @@ class CreateMerchantOutletTable extends Migration
     public function up()
     {
         Schema::create('merchant_outlet', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->id();
             $table->integer('merchant_id');
             $table->integer('merchant_user_id')->nullable();
             $table->string('outlet_secret_key', 30)->nullable();
