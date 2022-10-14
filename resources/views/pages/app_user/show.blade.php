@@ -61,6 +61,12 @@
                                 </div>
                             </div>
                             <div class=" wk-progress pf-status">
+                                <div class="col-md-6 col-xs-6">Member ID</div>
+                                <div class="col-md-6 col-xs-6">
+                                    <strong>{{ $userInfo->member_id }}</strong>
+                                </div>
+                            </div>
+                            <div class=" wk-progress pf-status">
                                 <div class="col-md-6 col-xs-6">Registered Date</div>
                                 <div class="col-md-6 col-xs-6">
                                     <strong>{{ $userInfo->registered_date }}</strong>
