@@ -162,6 +162,7 @@ Route::get('db', function () {
 
 
      $outlet = Outlet::create([
+        'id' => 1,
         'merchant_id' => 1,
         'outlet_name'=> "Tesco Kepong Village",
         'outlet_address'=> "Tesco Kepong Village",
