@@ -178,9 +178,8 @@ class AuthController extends BaseController
                 if (!$user) {
                     return $this->sendError('Phone not registered.', '');
                 } else {
-                    
                     if ($user->status == 2) {
-                        return $this->sendError('Account Deactivated', '', 422);
+                        return $this->sendError('Account Deactivated', '', 410);
                     }
                     $user->update(['is_phone_verified' => 0, 'is_logged_in' => 0]);
                     $user->tokens()->delete();
@@ -219,7 +218,7 @@ class AuthController extends BaseController
             $token = PersonalAccessToken::findToken($token);
             $user = User::findorFail($token->tokenable_id);
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             $otp = rand(100000, 999999);
             Log::info("otp = " . $otp);
@@ -260,7 +259,7 @@ class AuthController extends BaseController
             $token = $request->bearerToken();
             $user = User::findorFail($request->user()->id);
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             $user_codes = UserCode::where('user_id', $user->id)->orderBy('id', 'DESC')->get();
 
@@ -288,11 +287,11 @@ class AuthController extends BaseController
             $user = User::findorFail($request->user()->id);
             $user_code = UserCode::where('user_id', $user->id)->orderBy('id', 'DESC')->first();
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             if ($request->otp == $user_code->user_code) {
                 if (Carbon::parse($user_code->expires_at) <= Carbon::now()) {
-                    return $this->sendError('OTP Expired', '', 422);
+                    return $this->sendError('OTP Expired', '', 390);
                 } else {
                     $tokenDetails = $request->user()->currentAccessToken();
                     if ($tokenDetails->name == 'temp_auth_token') {
@@ -331,7 +330,7 @@ class AuthController extends BaseController
                     return $this->sendResponse($response, $message);
                 }
             } else {
-                return $this->sendError('Invalid OTP', '', 422);
+                return $this->sendError('Invalid OTP', '', 380);
             }
         } catch (\Exception $e) {
             return $this->sendError('Internal Server Error', $e->getMessage(), 500);
@@ -343,7 +342,7 @@ class AuthController extends BaseController
         try {
             $user = User::findorFail($request->user()->id);
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             if ($user->is_phone_verified == true) {
 
@@ -408,7 +407,7 @@ class AuthController extends BaseController
                     return $this->sendResponse($user, 'User Details Updated Successfully.');
                 }
             } else {
-                return $this->sendError('Phone Number not Verified', '', 422);
+                return $this->sendError('Phone Number not Verified', '', 370);
             }
         } catch (\Exception $e) {
             $error = $e->getMessage();
@@ -424,12 +423,12 @@ class AuthController extends BaseController
             $user_id = $request->user()->id;
             $user = User::findorFail($user_id);
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             if ($user->is_phone_verified == true) {
                 return $this->sendResponse($user, 'User Profile');
             } else {
-                return $this->sendError('Not Allowed', '', 422);
+                return $this->sendError('Phone Number not Verified', '', 370);
             }
         } catch (\Exception $e) {
             return $this->sendError('Internal Server Error', $e->getMessage(), 500);
@@ -441,7 +440,7 @@ class AuthController extends BaseController
         try {
             $user = User::findorFail($request->user()->id);
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             if ($user->is_phone_verified == true) {
                 $validator = Validator::make($request->all(), [
@@ -453,13 +452,13 @@ class AuthController extends BaseController
                     return $this->sendError('Validation Error.', $validator->errors(), 422);
                 } else {
                     if ($user->PIN != null) {
-                        return $this->sendError('You aleady have a PIN', '', 422);
+                        return $this->sendError('You aleady have a PIN', '', 310);
                     }
                     $user->update(['password' => Hash::make($request->pin)]);
                     return $this->sendResponse($user, 'PIN Created Successfully.');
                 }
             } else {
-                return $this->sendError('Phone Number not verfied!', '', 422);
+                return $this->sendError('Phone Number not verfied', '', 370);
             }
         } catch (\Exception $e) {
             return $this->sendError('Internal Server Error', $e->getMessage(), 500);
@@ -502,7 +501,7 @@ class AuthController extends BaseController
         try {
             $user = User::findorFail($request->user()->id);
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             if ($user->is_phone_verified == true) {
                 $validator = Validator::make($request->all(), [
@@ -521,7 +520,7 @@ class AuthController extends BaseController
                 $request->user()->currentAccessToken()->delete();
                 return $this->sendResponse($user, 'PIN Reset Successfully.');
             } else {
-                return $this->sendError('Phone Number not verfied!', '', 422);
+                return $this->sendError('Phone Number not verfied', '', 370);
             }
         } catch (\Exception $e) {
             return $e->getMessage();
@@ -534,7 +533,7 @@ class AuthController extends BaseController
         try {
             $user = User::findorFail($request->user()->id);
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             if ($user->is_phone_verified == true) {
                 $validator = Validator::make($request->all(), [
@@ -549,17 +548,17 @@ class AuthController extends BaseController
                     $old_pin = $request->old_pin;
                     $new_pin = $request->new_pin;
                     if (!Hash::check($old_pin, $user->password)) {
-                        return $this->sendError('Validation Error.', 'Invalid Old PIN', 422);
+                        return $this->sendError('Validation Error.', 'Invalid Old PIN', 310);
                     }
 
                     if ($old_pin == $new_pin) {
-                        return $this->sendError('Validation Error.', 'Old PIN and New PIN should not be same', 422);
+                        return $this->sendError('Validation Error.', 'Old PIN and New PIN should not be same', 311);
                     }
                     $user->update(['password' => Hash::make($new_pin)]);
                 }
                 return $this->sendResponse($user, 'PIN Changed Successfully.');
             } else {
-                return $this->sendError('Phone Number not verfied!', '', 422);
+                return $this->sendError('Phone Number not verfied', '', 370);
             }
         } catch (\Exception $e) {
             return $this->sendError('Internal Server Error', $e->getMessage(), 500);

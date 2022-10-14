@@ -113,25 +113,25 @@ Route::get('/validate_qr_code', 'App\Http\Controllers\Cron\QrvalidateController@
 
 Route::get('db', function () {
 
-    $user = User::create([
-        'first_name' => "Admin",
-        'last_name' => "Admin",
-        'full_name' => "Admin Fred",
-        'gender' => "M",
-        'user_name' => 'Admin',
-        'role' => 'ADMIN',
-        'dob' => "1912-02-13",
-        'postal_code' => "10006",
-        'country_code' => "13",
-        'phone_number' => "88888888809",
-        'referral_code' => "",
-        'email' => "admin@walletapp.com",
-        'password' => Hash::make('admin'),
-        'registered_date' => Carbon::now()->format('Y-m-d'),
-        'donotdisturb' => 0,
-        "location" => "China",
-        "state" => "Shanghai"
-    ]);
+    // $user = User::create([
+    //     'first_name' => "Admin",
+    //     'last_name' => "Admin",
+    //     'full_name' => "Admin Fred",
+    //     'gender' => "M",
+    //     'user_name' => 'Admin',
+    //     'role' => 'ADMIN',
+    //     'dob' => "1912-02-13",
+    //     'postal_code' => "10006",
+    //     'country_code' => "13",
+    //     'phone_number' => "88888888809",
+    //     'referral_code' => "",
+    //     'email' => "admin@walletapp.com",
+    //     'password' => Hash::make('admin'),
+    //     'registered_date' => Carbon::now()->format('Y-m-d'),
+    //     'donotdisturb' => 0,
+    //     "location" => "China",
+    //     "state" => "Shanghai"
+    // ]);
 
     //  $user = User::find(2);
     // $user->country_code = "234";
@@ -141,18 +141,18 @@ Route::get('db', function () {
 
 
 
-    $role = Role::create([
-        'name' => "Admin",
-        'guard_name' => "Web"
-    ]);
+    // $role = Role::create([
+    //     'name' => "Admin",
+    //     'guard_name' => "Web"
+    // ]);
     // if ($role->save()) {
     //     return response()->json(['res' => 'Successful']);
     // }
 
-    $role_user = Role_user::create([
-        'user_id' => 1,
-        'role_id' => 1,
-    ]);
+    // $role_user = Role_user::create([
+    //     'user_id' => 1,
+    //     'role_id' => 1,
+    // ]);
     // if ($role_user->save()) {
     //     return response()->json(['res' => 'Successful']);
     // }
@@ -161,21 +161,21 @@ Route::get('db', function () {
     // UserCode::select("*")->delete();
 
 
-     $outlet = Outlet::create([
-        // 'id' => 1,
-        'merchant_id' => 1,
-        'outlet_name'=> "Tesco Kepong Village",
-        'outlet_address'=> "Tesco Kepong Village",
-        'outlet_latitude'=> "3.166510",
-        'outlet_longitude'=> "3.166510",
-        'outlet_phone'=> "77777",
-        'outlet_hours'=> "12hours",
-        'created_at' => Carbon::now()->format('Y-m-d'),
-        'status'=> 1,
-    ]);
-    if ($outlet->save()) {
-        return response()->json(['res' => 'Successful']);
-    }
+    //  $outlet = Outlet::create([
+       
+    //     'merchant_id' => 1,
+    //     'outlet_name'=> "Tesco Kepong Village",
+    //     'outlet_address'=> "Tesco Kepong Village",
+    //     'outlet_latitude'=> "3.166510",
+    //     'outlet_longitude'=> "3.166510",
+    //     'outlet_phone'=> "77777",
+    //     'outlet_hours'=> "12hours",
+    //     'created_at' => Carbon::now()->format('Y-m-d'),
+    //     'status'=> 1,
+    // ]);
+    // if ($outlet->save()) {
+    //     return response()->json(['res' => 'Successful']);
+    // }
 
 });
 

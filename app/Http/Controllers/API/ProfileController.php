@@ -52,18 +52,18 @@ class ProfileController extends BaseController
             $user_id = $request->user()->id;
             $user = User::findorFail($user_id);
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             if ($user->is_phone_verified == true) {
                 $total_points = User_reward::where('member_id', $user->member_id)->first();
 
                 if (!$total_points) {
-                    return $this->sendError('No Point Awarded Yet', 'No Data', 422);
+                    return $this->sendError('No Point Awarded Yet', 'No Data', 360);
                 }
 
                 return $this->sendResponse($total_points, 'User Total Points');
             } else {
-                return $this->sendError('Not Allowed', '', 422);
+                return $this->sendError('Phone Number not Verified', '', 370);
             }
         } catch (\Exception $e) {
             return $this->sendError('Internal Server Error', $e->getMessage(), 500);
@@ -78,18 +78,18 @@ class ProfileController extends BaseController
             $user = User::findorFail($user_id);
 
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
 
             if ($user->is_phone_verified == true) {
                 $reward_history = User_reward_history::where('member_id', $user->member_id)->get();
 
                 if ($reward_history->count() === 0) {
-                    return $this->sendError('No Point Awarded Yet', 'No Data', 422);
+                    return $this->sendError('No Point Awarded Yet', 'No Data', 390);
                 }
                 return $this->sendResponse($reward_history, 'User Reward History');
             } else {
-                return $this->sendError('Not Allowed', '', 422);
+                return $this->sendError('Phone Number not Verified', '', 370);
             }
         } catch (\Exception $e) {
             return $this->sendError('Internal Server Error', $e->getMessage(), 500);
@@ -104,7 +104,7 @@ class ProfileController extends BaseController
             $user = User::findorFail($user_id);
 
             if ($user->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
 
             if ($user->is_phone_verified == true) {
@@ -112,7 +112,7 @@ class ProfileController extends BaseController
 
                 return $this->sendResponse($wallet, 'User Wallet Balance');
             } else {
-                return $this->sendError('Not Allowed', '', 422);
+                return $this->sendError('Phone Number not Verified', '', 370);
             }
         } catch (\Exception $e) {
             return $this->sendError('Internal Server Error', $e->getMessage(), 500);
@@ -120,14 +120,14 @@ class ProfileController extends BaseController
     }
 
     //  user credit wallet
-    public function userCreditWallet(Request $request)
+    public function addCreditToWallet(Request $request)
     {
         try {
             $cashier = User::where('id', $request->user()->id)->first();
             $customer  = User::where('member_id',  $request->member_id)->first();
             $outlet = Outlet::Where('id',$request->outlet_id)->first();
             if ($cashier->status == 2) {
-                return $this->sendError('Account Deactivated', '', 422);
+                return $this->sendError('Account Deactivated', '', 410);
             }
             if ($cashier->is_phone_verified == true) {
                 $messages = [
@@ -209,7 +209,7 @@ class ProfileController extends BaseController
                     return response()->json(['status' => 'success', 'status_code' => $status_code, 'message' => $status_message, 'data' => $response, 'outlet' => $outlet->outlet_name, 'customer'=>$customer->first_name.' '.$customer->last_name, 'cashier'=>$cashier->first_name.' '.$cashier->last_name], 200);
                 }
             } else {
-                return $this->sendError('Not Allowed. Verified Your Phone', '', 422);
+                return $this->sendError('Phone Number not Verified', '', 370);
             }
         } catch (\Exception $e) {
             return $e->getMessage();

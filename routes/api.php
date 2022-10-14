@@ -64,7 +64,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/get-total-reward-point', 'App\Http\Controllers\API\ProfileController@getUserTotalRewardPoints');
     Route::get('/get-reward-history', 'App\Http\Controllers\API\ProfileController@getUserRewardHistory');
     Route::get('/get-wallet-balance', 'App\Http\Controllers\API\ProfileController@getUserWalletBalance');
-    Route::post('/credit-wallet', 'App\Http\Controllers\API\ProfileController@userCreditWallet');
+    Route::post('/add-credit-to-wallet', 'App\Http\Controllers\API\ProfileController@addCreditToWallet');
 
     //POS SYSTEM
     Route::get('/generate_qr_code', 'App\Http\Controllers\API\CouponcodeController@getCoupon');
