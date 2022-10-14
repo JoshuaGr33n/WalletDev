@@ -11,7 +11,7 @@ class Outlet extends Model
     protected $table = 'merchant_outlet';
 
     protected $fillable = [
-        'id',
+        // 'id',
         'merchant_id',
         'outlet_name',
         'outlet_address' ,
