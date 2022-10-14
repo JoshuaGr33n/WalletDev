@@ -18,7 +18,7 @@ class CreateUserWalletsTable extends Migration
             $table->bigInteger('user_id');
             $table->string('member_id', 30);
             $table->string('wallet_address');
-            $table->decimal('amount', 10, 2)->nullable();
+            $table->decimal('wallet_balance', 10, 2)->nullable();
             $table->timestamps();
             $table->integer('status')->comment("1 - Active");
             $table->timestamp('deleted_at')->nullable();

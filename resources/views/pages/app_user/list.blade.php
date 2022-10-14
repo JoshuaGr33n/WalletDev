@@ -25,6 +25,7 @@
                                 <th>Email</th>
                                 <th>Status</th>
                                 <th>Action</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,6 +73,7 @@ $(document).ready(function(){
             {data: 'email', name: 'email'},
             {data: 'status', name: 'status'},
             {data: 'action', name: 'action', orderable: false},
+            {data: 'actions', name: 'actions'},
         ],
         order: [[0, 'desc']],
         responsive:true,

@@ -81,7 +81,7 @@
                             <div class="mini-stat clearfix">
                                 <span class="mini-stat-icon orange"><i class="fa fa-money"></i></span>
                                 <div class="mini-stat-info">
-                                    <span>RM {{(!empty($userInfo->user_wallet) ? $userInfo->user_wallet->amount : 0)}}</span>
+                                    <span>RM {{(!empty($userInfo->user_wallet) ? $userInfo->user_wallet->wallet_balance : 0)}}</span>
                                     Total Amount
                                 </div>
                             </div>
@@ -145,7 +145,7 @@
                 <ul class="nav nav-tabs">
                     <li class="active">
                         <a data-toggle="tab" href="#overview">
-                            All Transaction
+                            All Transactions
                         </a>
                     </li>
                     <li>
@@ -200,7 +200,7 @@
                                                         <th>Amount (RM)</th>
                                                         <th>Transaction id</th>
                                                         <th>Outlet Name</th>
-                                                        <th>Topup/Pay By</th>
+                                                        <th>TopUp By</th>
                                                         <th>Transaction date</th>
                                                     </tr>
                                                 </thead>
@@ -225,7 +225,7 @@
                                                         <th>Amount (RM)</th>
                                                         <th>Transaction id</th>
                                                         <th>Outlet Name</th>
-                                                        <th>Topup/Pay By</th>
+                                                        <th>Paid By</th>
                                                         <th>Transaction date</th>
                                                     </tr>
                                                 </thead>
@@ -268,12 +268,12 @@ $(document).ready(function(){
           }
         },
         columns: [
-            {data: 'type', name: 'type'},
+            {data: 'transaction_type', name: 'transaction_type'},
             {data: 'amount', name: 'amount'},
             {data: 'transaction_id', name: 'transaction_id'},
             {data: 'outlet_id', name: 'outlet_id'},
             {data: 'action_by', name: 'action_by'},
-            {data: 'tranasaction_datetime', name: 'tranasaction_datetime'},
+            {data: 'transaction_date', name: 'transaction_date'},
         ],
         order: [[0, 'desc']],
         responsive:true,
@@ -295,7 +295,7 @@ $(document).ready(function(){
             {data: 'transaction_id', name: 'transaction_id'},
             {data: 'outlet_id', name: 'outlet_id'},
             {data: 'action_by', name: 'action_by'},
-            {data: 'tranasaction_datetime', name: 'tranasaction_datetime'},
+            {data: 'transaction_datetime', name: 'transaction_datetime'},
         ],
         order: [[0, 'desc']],
         responsive:true,
@@ -317,7 +317,7 @@ $(document).ready(function(){
             {data: 'transaction_id', name: 'transaction_id'},
             {data: 'outlet_id', name: 'outlet_id'},
             {data: 'action_by', name: 'action_by'},
-            {data: 'tranasaction_datetime', name: 'tranasaction_datetime'},
+            {data: 'transaction_datetime', name: 'transaction_datetime'},
         ],
         order: [[0, 'desc']],
         responsive:true,

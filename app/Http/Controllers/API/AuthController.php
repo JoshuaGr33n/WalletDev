@@ -87,6 +87,8 @@ class AuthController extends BaseController
                 'repeat_email.required_with' => 'Please repeat your email address',
                 'postal_code.required' => 'Postal Code is required',
                 'postal_code.numeric' => 'Postal Code must be numeric',
+                'state.required' => 'State is required',
+                'location.required' => 'Location is required',
             ];
             $validator = Validator::make($request->all(), [
 
@@ -101,6 +103,8 @@ class AuthController extends BaseController
                 'email' => 'required|email|unique:users',
                 'repeat_email' => 'same:email|required_with:email',
                 'postal_code' => 'required|numeric',
+                'state' => 'required',
+                'location' => 'required',
             ], $messages);
 
             if ($validator->fails()) {
@@ -119,6 +123,8 @@ class AuthController extends BaseController
                     'postal_code' => $request->postal_code,
                     'country_code' => $request->country_code,
                     'phone_number' => $request->phone_number,
+                    'state' => $request->state,
+                    'location' => $request->location,
                     'referral_code' => $referral_code,
                     'email' => $request->email,
                     'password' => "",
@@ -168,9 +174,14 @@ class AuthController extends BaseController
             } else {
                 $user = User::where([['phone_number', $request->phone_number], ['country_code', $request->country_code]])->first();
 
+
                 if (!$user) {
                     return $this->sendError('Phone not registered.', '');
                 } else {
+                    
+                    if ($user->status == 2) {
+                        return $this->sendError('Account Deactivated', '', 422);
+                    }
                     $user->update(['is_phone_verified' => 0, 'is_logged_in' => 0]);
                     $user->tokens()->delete();
 
@@ -207,7 +218,9 @@ class AuthController extends BaseController
         try {
             $token = PersonalAccessToken::findToken($token);
             $user = User::findorFail($token->tokenable_id);
-
+            if ($user->status == 2) {
+                return $this->sendError('Account Deactivated', '', 422);
+            }
             $otp = rand(100000, 999999);
             Log::info("otp = " . $otp);
 
@@ -246,7 +259,9 @@ class AuthController extends BaseController
         try {
             $token = $request->bearerToken();
             $user = User::findorFail($request->user()->id);
-
+            if ($user->status == 2) {
+                return $this->sendError('Account Deactivated', '', 422);
+            }
             $user_codes = UserCode::where('user_id', $user->id)->orderBy('id', 'DESC')->get();
 
             if (count($user_codes) >= 5) {
@@ -272,7 +287,9 @@ class AuthController extends BaseController
         try {
             $user = User::findorFail($request->user()->id);
             $user_code = UserCode::where('user_id', $user->id)->orderBy('id', 'DESC')->first();
-
+            if ($user->status == 2) {
+                return $this->sendError('Account Deactivated', '', 422);
+            }
             if ($request->otp == $user_code->user_code) {
                 if (Carbon::parse($user_code->expires_at) <= Carbon::now()) {
                     return $this->sendError('OTP Expired', '', 422);
@@ -325,8 +342,10 @@ class AuthController extends BaseController
     {
         try {
             $user = User::findorFail($request->user()->id);
-
-            if ($user->is_phone_verified === true) {
+            if ($user->status == 2) {
+                return $this->sendError('Account Deactivated', '', 422);
+            }
+            if ($user->is_phone_verified == true) {
 
                 $messages = [
                     'first_name.required' => 'First name is required',
@@ -404,8 +423,10 @@ class AuthController extends BaseController
         try {
             $user_id = $request->user()->id;
             $user = User::findorFail($user_id);
-
-            if ($user->is_phone_verified === true) {
+            if ($user->status == 2) {
+                return $this->sendError('Account Deactivated', '', 422);
+            }
+            if ($user->is_phone_verified == true) {
                 return $this->sendResponse($user, 'User Profile');
             } else {
                 return $this->sendError('Not Allowed', '', 422);
@@ -419,7 +440,10 @@ class AuthController extends BaseController
     {
         try {
             $user = User::findorFail($request->user()->id);
-            if ($user->is_phone_verified === true) {
+            if ($user->status == 2) {
+                return $this->sendError('Account Deactivated', '', 422);
+            }
+            if ($user->is_phone_verified == true) {
                 $validator = Validator::make($request->all(), [
                     'pin' => 'required|digits:6|numeric',
                     'retype_pin' => 'same:pin|required_with:pin'
@@ -477,7 +501,10 @@ class AuthController extends BaseController
     {
         try {
             $user = User::findorFail($request->user()->id);
-            if ($user->is_phone_verified === true) {
+            if ($user->status == 2) {
+                return $this->sendError('Account Deactivated', '', 422);
+            }
+            if ($user->is_phone_verified == true) {
                 $validator = Validator::make($request->all(), [
                     'pin' => 'required|digits:6|numeric',
                     'retype_pin' => 'same:pin|required_with:pin'
@@ -506,7 +533,10 @@ class AuthController extends BaseController
     {
         try {
             $user = User::findorFail($request->user()->id);
-            if ($user->is_phone_verified === true) {
+            if ($user->status == 2) {
+                return $this->sendError('Account Deactivated', '', 422);
+            }
+            if ($user->is_phone_verified == true) {
                 $validator = Validator::make($request->all(), [
                     'old_pin' => 'required',
                     'new_pin' => 'required|digits:6|numeric',

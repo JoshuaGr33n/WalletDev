@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Role_user;
 use App\Models\UserCode;
+use App\Models\User_reward_history;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -98,10 +99,10 @@ Route::get('/get-settlement-transaction', 'App\Http\Controllers\Admin\Settlement
 Route::post('/check-password-form', 'App\Http\Controllers\Admin\SettlementController@geVerifyPasswordForm')->name('getVerifyPasswordForm');
 Route::post('/verify-password', 'App\Http\Controllers\Admin\SettlementController@verifyPassword')->name('verifyPassword');
 
-Route::get('/firebase_sdk','FirebaseController@index')->name('firebase_sdk');
-Route::get('/insert','FirebaseController@insert')->name('insert');
-Route::get('/update','FirebaseController@update')->name('update');
-Route::get('/delete','FirebaseController@delete')->name('delete');
+Route::get('/firebase_sdk', 'FirebaseController@index')->name('firebase_sdk');
+Route::get('/insert', 'FirebaseController@insert')->name('insert');
+Route::get('/update', 'FirebaseController@update')->name('update');
+Route::get('/delete', 'FirebaseController@delete')->name('delete');
 
 Route::get('/validate_qr_code', 'App\Http\Controllers\Cron\QrvalidateController@couponValidate');
 //Route::get('/resetpassword', 'App\Http\Controllers\Admin\ResetPasswordController@index')->name('resetpassword');
@@ -110,24 +111,25 @@ Route::get('/validate_qr_code', 'App\Http\Controllers\Cron\QrvalidateController@
 
 
 Route::get('db', function () {
-    
+
     // $user = User::create([
-    //     'first_name' => "John",
-    //     'last_name' => "Wick",
-    //     'full_name' => "John Wick",
+    //     'first_name' => "Admin",
+    //     'last_name' => "Admin",
+    //     'full_name' => "Admin Fred",
     //     'gender' => "M",
-    //     'user_name' => 'John' .rand(),
-    //     'role' => 'Customer',
-    //     'dob' => "1998-02-21",
+    //     'user_name' => 'Admin',
+    //     'role' => 'ADMIN',
+    //     'dob' => "1912-02-13",
     //     'postal_code' => "10006",
-    //     'country_code' => "+234",
-    //     'phone_number' => "7035069200",
+    //     'country_code' => "13",
+    //     'phone_number' => "88888888809",
     //     'referral_code' => "",
-    //     'email' => "wick@walletapp.com",
-    //     'password' => "",
+    //     'email' => "admin@walletapp.com",
+    //     'password' => Hash::make('admin'),
     //     'registered_date' => Carbon::now()->format('Y-m-d'),
-    //     'user_unique_id' => Str::uuid(),
-    //     'member_id' =>'bkk-' . rand()
+    //     'donotdisturb' => 0,
+    //     "location" => "China",
+    //     "state" => "Shanghai"
     // ]);
 
     //  $user = User::find(2);
@@ -157,4 +159,151 @@ Route::get('db', function () {
     // User::select("*")->whereNotIn('id', [1])->delete();
     // UserCode::select("*")->delete();
 
+});
+
+// Route::get('time', function () {
+//     $tests = User_reward_history::select("*")->whereDate('created_at', Carbon::today())->get();
+//     $sum = 0;
+//     foreach ($tests as $key => $test) {
+//      $sum += $test['amount'];
+//     }
+//     return $sum;
+//     // $yesterday = Carbon::yesterday();
+//     // $today = Carbon::today();
+//     // $tomorrow = Carbon::tomorrow();
+//     // if ($today < $tomorrow) {
+//     //     $target = 5000;
+//     //     $comingIN = 1;
+//     //     if ($comingIN == 5000) {
+//     //         return 'good';
+//     //     } else {
+//     //         return 'bad';
+//     //     }
+//     // }
+// });
+Route::get('time', function () {
+    $array = [
+        [
+            "item_code" => "C001",
+            "item_desc" => "Chicken Rice Set",
+            "item_ean_barcode" => "",
+            "quantity" => "1",
+            "unit_price" => "17.24",
+            "amount" => "12.00",
+            "discount" => [
+                [
+                    "discount_amount" => 1.00,
+                    "discount_description" => "Christmas Promo Item"
+                ],
+                [
+                    "discount_amount" => 4.00,
+                    "discount_description" => "Citibank discount"
+                ]
+            ],
+            "sub_item" => [
+                [
+                    "sub_item_code" => "R001",
+                    "sub_item_ean_barcode" => "RBS1",
+                    "sub_item_desc" => "Chicken Rice",
+                    "sub_item_quantity" => "1",
+                    "sub_item_unit_price" => "10.00",
+                    "sub_item_amount" => "10.00"
+                ],
+                [
+                    "sub_item_code" => "D001",
+                    "sub_item_ean_barcode" => "RBS1",
+                    "sub_item_desc" => "Chinese Tea",
+                    "sub_item_quantity" => "1",
+                    "sub_item_unit_price" => "2.24",
+                    "sub_item_amount" => "2.24"
+                ]
+            ]
+        ],
+        [
+
+            "item_code" => "D001",
+            "item_desc" => "Red Bean Soup",
+            "item_ean_barcode" => "RBS1",
+            "quantity" => "3",
+            "unit_price" => "25.00",
+            "amount" => "24.00",
+            "discount" => [
+                [
+                    "discount_amount" => 0.00,
+                    "discount_description" => "Christmas Promo Item"
+                ],
+                [
+                    "discount_amount" => 2.00,
+                    "discount_description" => "Citibank discount"
+                ]
+            ],
+            "sub_item" => [
+                [
+                    "sub_item_code" => "R001",
+                    "sub_item_ean_barcode" => "RBS1",
+                    "sub_item_desc" => "Chicken Rice",
+                    "sub_item_quantity" => "1",
+                    "sub_item_unit_price" => "11.00",
+                    "sub_item_amount" => "11.00"
+                ],
+                [
+                    "sub_item_code" => "D001",
+                    "sub_item_ean_barcode" => "RBS1",
+                    "sub_item_desc" => "Chinese Tea",
+                    "sub_item_quantity" => "1",
+                    "sub_item_unit_price" => "2.24",
+                    "sub_item_amount" => "22.24"
+                ]
+            ]
+        ]
+
+    ];
+    // $item_sum = 0;
+    // $item_discount_sum = 0;
+    // $sub_item_total_amount = 0;
+    // foreach ($array as $item) {
+    //     $result = $item['quantity'] * $item['unit_price'];
+    //     $item_sum += $result;
+
+    //     foreach ($item['discount'] as $discount) {
+    //         $item_discount_sum +=  $discount['discount_amount'];
+    //     }
+    //     foreach ($item['sub_item'] as $sub_item) {
+    //         $result = $sub_item['sub_item_quantity'] * $sub_item['sub_item_unit_price'];
+    //         $sub_item_total_amount += $result;
+    //     }
+    // }
+
+    // $item_amount = $item_sum - $item_discount_sum;
+    // return $item_amount +  $sub_item_total_amount;
+
+
+    // $summary = $item->summary->entries;
+    // $summary[0]['name'] = 'John';
+    // $item->summary = $summary;
+    // $summary = $array;
+    // $summary[0]['unit_price'] = 0900.0;
+    //    return $summary;
+
+
+
+
+
+    // for ($x = 0; $x <= 1; $x++) {
+    //     // $item_price = $array[$x]['quantity'] * $array[$x]['unit_price'];
+    //     // return $array[$x]['amount']; 
+    //     // echo 'Goo';
+    //     $first = $array[$x]['sub_item'];
+    //     for ($i = 0; $i <= 1; $i++) {
+    //         $item_price = $first[$i]['sub_item_amount'];
+    //         echo $item_price . '<br/>';
+    //     }
+    // }
+
+    // foreach ($array as $type) {
+    //     $type['sub_item'];
+    //     for ($x = 0; $x <= 1; $x++) {
+    //         echo $type['sub_item'][$x]['sub_item_amount'] . '<br>';
+    //     }
+    // }
 });

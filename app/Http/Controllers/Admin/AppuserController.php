@@ -13,10 +13,13 @@ use App\Models\Setting;
 use App\Models\User_wallet;
 use App\Models\User_reward;
 use App\Models\User_reward_history;
+use App\Models\Bills;
+use App\Models\User_Wallet_Transactions;
 use Illuminate\Support\Facades\Hash;
-use Validator;
-use Datatables;
+use Illuminate\Support\Facades\Validator;
+use Yajra\Datatables\Datatables;
 use DB;
+
 
 class AppuserController extends Controller
 {
@@ -35,10 +38,10 @@ class AppuserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            //$users = User::query();
-            $users = User::whereHas('roles', function ($q) {
-                $q->where('name', 'Customer');
-            });
+            $users = User::where('role', 'CUSTOMER');
+            // $users = User::whereHas('roles', function ($q) {
+            //     $q->where('name', 'Customer');
+            // });
 
             if ($request->first_name) {
                 $users->where('first_name', 'like', '%' . $request->first_name . '%');
@@ -85,9 +88,14 @@ class AppuserController extends Controller
                     }
                     
                     $btn .= '<a class="btn btn-danger btn-xs deleteuser" href="javascript:;" data-user="'.$row->id.'" data-toggle="tooltip" data-placement="top" title="Delete User"><i class="fa fa-trash-o"></i></a>&nbsp;';
-                    $btn .= '<a class="btn btn-primary btn-xs" href="' . route('appuser.show', ['id' => $row->id]) . '" data-toggle="tooltip" data-placement="top" title="View User"><i class="fa fa fa-eye"></i></a>&nbsp;';
+                    $btn .= '<a class="btn btn-primary btn-xs" href="' . route('appuser.show', ['appuser' => $row->id]) . '" data-toggle="tooltip" data-placement="top" title="View User"><i class="fa fa fa-eye"></i></a>&nbsp;';
                     $btn .= '<a class="btn btn-success btn-xs" onclick="return getTransactionForm('.$row->id.');" href="javascript:;" data-toggle="tooltip" data-placement="top" title="Add Transaction"><i class="fa fa fa-plus"></i></a>&nbsp;';
                     return $btn;
+                    // return '<a class="btn btn-danger btn-xs deleteuser" href="javascript:;" data-user="'.$row->id.'" data-toggle="tooltip" data-placement="top" title="Delete User"><i class="fa fa-trash-o"></i></a>';
+                })
+                ->addColumn('actions', function ($row) {
+                  
+                
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -129,35 +137,35 @@ class AppuserController extends Controller
             return redirect()->route('appuser.index');
         }
         $data['user_id'] = $id;
-        $data['totalTransaction'] = Couponcode::WhereIn('type', [1,2])->where(['user_id' => $id, 'status' => 1])->get()->count();
-        $data['totalTopup'] = Couponcode::where(['user_id' => $id, 'type' => 1, 'status' => 1])->get()->count();
-        $data['totalPaid'] = Couponcode::where(['user_id' => $id, 'type' => 2, 'status' => 1])->get()->count();
+        $data['totalTransaction'] = User_Wallet_Transactions::WhereIn('transaction_type', [1,2])->where(['user_id' => $id, 'status' => 1])->get()->count();
+        $data['totalTopup'] = User_Wallet_Transactions::where(['user_id' => $id, 'transaction_type' => 1, 'status' => 1])->get()->count();
+        $data['totalPaid'] = User_Wallet_Transactions::where(['user_id' => $id, 'transaction_type' => 2, 'status' => 1])->get()->count();
         return view('pages.app_user.show',$data);
     }
 
     public function getAllTransaction(Request $request)
     {
         if ($request->ajax()) {
-            $results = Couponcode::where(['user_id' => $request->user_id, 'status' => 1])->orderBy('id','desc')->get();
+            $results = User_Wallet_Transactions::where(['user_id' => $request->user_id, 'status' => 1])->orderBy('id','desc')->get();
             return Datatables::of($results)
                 ->addIndexColumn()
-                ->addColumn('type', function ($data) {
-                    if (empty($data->type)) {
+                ->addColumn('transaction_type', function ($data) {
+                    if (empty($data->transaction_type)) {
                         return 'N/A';
                     }
-                    if($data->type == 1){
+                    if($data->transaction_type == 1){
                     	return 'Topup';
-                    }elseif ($data->type == 2) {
+                    }elseif ($data->transaction_type == 2) {
                     	return 'Paid';
                     }else{
                     	return 'N/A';
                     }
                 })
                 ->addColumn('amount', function ($data) {
-                    if (empty($data->amount)) {
+                    if (empty($data->request_amount)) {
                         return 'N/A';
                     }
-                    return $data->amount;
+                    return $data->request_amount;
                 })
                 ->addColumn('transaction_id', function ($data) {
                     if (empty($data->transaction_id)) {
@@ -170,20 +178,28 @@ class AppuserController extends Controller
                     if (empty($outletInfo)) {
                         return 'N/A';
                     }
+
                     return $outletInfo->outlet_name;
                 })
                 ->addColumn('action_by', function ($data) {
-                    if($data->coupon == 'CMS'){
-                        return 'ADMIN';
+                    // if($data->coupon == 'CMS'){
+                    //     return 'ADMIN';
+                    // }else{
+                    //     return 'USER';
+                    // }
+                    $action_by = User::Where('member_id',$data->staff_id)->first();
+                    if($action_by->id == $data->user_id){
+                        $tag ="(Customer)";
                     }else{
-                        return 'USER';
+                        $tag ="(Cashier)";
                     }
+                    return $action_by->first_name.' '.$action_by->last_name.$tag;
                 })
-                ->addColumn('tranasaction_datetime', function ($data) {
-                    if (empty($data->tranasaction_datetime)) {
+                ->addColumn('transaction_date', function ($data) {
+                    if (empty($data->transaction_date)) {
                         return 'N/A';
                     }
-                    return $data->tranasaction_datetime;
+                    return $data->transaction_date;
                 })
                 ->make(true);
         }
@@ -191,14 +207,14 @@ class AppuserController extends Controller
     public function getAllTopup(Request $request)
     {
         if ($request->ajax()) {
-            $results = Couponcode::where(['user_id' => $request->user_id, 'type' => 1, 'status' => 1])->get();
+            $results = User_Wallet_Transactions::where(['user_id' => $request->user_id, 'transaction_type' => 1, 'status' => 1])->orderBy('id','desc')->get();
             return Datatables::of($results)
                 ->addIndexColumn()
                 ->addColumn('amount', function ($data) {
-                    if (empty($data->amount)) {
+                    if (empty($data->request_amount)) {
                         return 'N/A';
                     }
-                    return $data->amount;
+                    return $data->request_amount;
                 })
                 ->addColumn('transaction_id', function ($data) {
                     if (empty($data->transaction_id)) {
@@ -214,17 +230,25 @@ class AppuserController extends Controller
                     return $outletInfo->outlet_name;
                 })
                 ->addColumn('action_by', function ($data) {
-                    if($data->coupon == 'CMS'){
-                        return 'ADMIN';
+                    // if($data->coupon == 'CMS'){
+                    //     return 'ADMIN';
+                    // }else{
+                    //     return 'USER';
+                    // }
+
+                    $action_by = User::Where('member_id',$data->staff_id)->first();
+                    if($action_by->id == $data->user_id){
+                        $tag ="(Customer)";
                     }else{
-                        return 'USER';
+                        $tag ="(Cashier)";
                     }
+                    return $action_by->first_name.' '.$action_by->last_name.$tag;
                 })
-                ->addColumn('tranasaction_datetime', function ($data) {
-                    if (empty($data->tranasaction_datetime)) {
+                ->addColumn('transaction_datetime', function ($data) {
+                    if (empty($data->transaction_date)) {
                         return 'N/A';
                     }
-                    return $data->tranasaction_datetime;
+                    return $data->transaction_date;
                 })
                 ->make(true);
         }
@@ -232,14 +256,14 @@ class AppuserController extends Controller
     public function getAllPaid(Request $request)
     {
         if ($request->ajax()) {
-            $results = Couponcode::where(['user_id' => $request->user_id, 'type' => 2, 'status' => 1])->get();
+            $results = User_Wallet_Transactions::where(['user_id' => $request->user_id, 'transaction_type' => 2, 'status' => 1])->orderBy('id','desc')->get();
             return Datatables::of($results)
                 ->addIndexColumn()
                 ->addColumn('amount', function ($data) {
-                    if (empty($data->amount)) {
+                    if (empty($data->request_amount)) {
                         return 'N/A';
                     }
-                    return $data->amount;
+                    return $data->request_amount;
                 })
                 ->addColumn('transaction_id', function ($data) {
                     if (empty($data->transaction_id)) {
@@ -255,17 +279,24 @@ class AppuserController extends Controller
                     return $outletInfo->outlet_name;
                 })
                 ->addColumn('action_by', function ($data) {
-                    if($data->coupon == 'CMS'){
-                        return 'ADMIN';
+                    // if($data->coupon == 'CMS'){
+                    //     return 'ADMIN';
+                    // }else{
+                    //     return 'USER';
+                    // }
+                    $action_by = User::Where('member_id',$data->staff_id)->first();
+                    if($action_by->id == $data->user_id){
+                        $tag ="(Customer)";
                     }else{
-                        return 'USER';
+                        $tag ="(Cashier)";
                     }
+                    return $action_by->first_name.' '.$action_by->last_name.$tag;
                 })
-                ->addColumn('tranasaction_datetime', function ($data) {
-                    if (empty($data->tranasaction_datetime)) {
+                ->addColumn('transaction_datetime', function ($data) {
+                    if (empty($data->transaction_date)) {
                         return 'N/A';
                     }
-                    return $data->tranasaction_datetime;
+                    return $data->transaction_date;
                 })
                 ->make(true);
         }

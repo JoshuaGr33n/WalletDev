@@ -1,7 +1,7 @@
 @extends('layouts.layout_login')
 @section('content')
 <form class="form-signin" action="{{ route('login') }}" method="POST" autocomplete="off">
-@csrf
+{{ csrf_field() }}
 <h2 class="form-signin-heading"><img src="https://bungkuskawkaw.com/wp-content/uploads/2019/01/Bungkus-Logo-300x177.png" width="168" height="80"></h2>
 <div class="login-wrap">
     <div class="user-login-info">
