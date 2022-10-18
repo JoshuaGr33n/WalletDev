@@ -87,7 +87,7 @@ class AppuserController extends Controller
                         $btn = '<a class="btn btn-info btn-xs" onclick="return changeStatus('.$row->id.',1);" href="javascript:;" data-toggle="tooltip" data-placement="top" title="Active">Active</a>&nbsp;';
                     }
                     
-                    $btn .= '<a class="btn btn-danger btn-xs deleteuser" href="javascript:;" data-user="'.$row->id.'" data-toggle="tooltip" data-placement="top" title="Delete User"><i class="fa fa-trash-o"></i></a>&nbsp;';
+                    $btn .= '<a class="btn btn-danger btn-xs" onclick="return deleteUser('.$row->id.');" href="javascript:;" data-user="'.$row->id.'" data-toggle="tooltip" data-placement="top" title="Delete User"><i class="fa fa-trash-o"></i></a>&nbsp;';
                     $btn .= '<a class="btn btn-primary btn-xs" href="' . route('appuser.show', ['appuser' => $row->id]) . '" data-toggle="tooltip" data-placement="top" title="View User"><i class="fa fa fa-eye"></i></a>&nbsp;';
                     $btn .= '<a class="btn btn-success btn-xs" onclick="return getTransactionForm('.$row->id.');" href="javascript:;" data-toggle="tooltip" data-placement="top" title="Add Transaction"><i class="fa fa fa-plus"></i></a>&nbsp;';
                     return $btn;
@@ -510,7 +510,17 @@ class AppuserController extends Controller
      */
     public function destroy(Request $request)
     {
+        $category = User::find($request->id);
+        $category->delete();
+        return redirect()->route('user.index');
     }
+
+    public function deleteAppUser(Request $request){
+        $category = User::find($request->id);
+        $category->delete();
+        return redirect()->route('user.index');
+    }
+    
     public function changeStatus(Request $request){
         $user = User::find($request->id);
         $user->status = $request->status;

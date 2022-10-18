@@ -7,9 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Voucher;
 use App\Models\VoucherType;
 use App\Models\Outlet;
+use App\Models\Items;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
-use Datatables;
+use Yajra\Datatables\Datatables;
 use Session;
 use DB;
 
@@ -21,6 +22,7 @@ class VouchersController extends Controller
         $this->voucherStatus = ['1' => 'Active','2' => 'Inactive'];
         $this->statusLabel   = ['1' => 'Active','2' => 'Inactive','3' => 'Expired'];
         $this->discountType  = ['1' => 'Percentage','2' => 'Fixed Amount'];
+        $this->buyVoucherWith  = ['' => 'Select','1' => 'Points','2' => 'Wallet Credit','3' => 'Both Points & Credit'];
         $this->middleware('AdminAccess'); // Allows Access to Admin
     }
     /**
@@ -85,7 +87,7 @@ class VouchersController extends Controller
                 })
                 ->addColumn('action', function ($row) {
 
-                    $btn = '<a class="btn btn-info btn-xs" href="' . route('vouchers.edit', ['id' => $row->id]) . '" data-toggle="tooltip" data-placement="top" title="Edit Voucher"><i class="fa fa-edit"></i> Edit</a>&nbsp;';
+                    $btn = '<a class="btn btn-info btn-xs" href="' . route('vouchers.edit', ['voucher' => $row->id]) . '" data-toggle="tooltip" data-placement="top" title="Edit Voucher"><i class="fa fa-edit"></i> Edit</a>&nbsp;';
                     $btn .= '<a class="btn btn-danger btn-xs deleteVoucher" href="javascript:;" data-voucher="'.$row->id.'" data-toggle="tooltip" data-placement="top" title="Delete voucher"><i class="fa fa-trash-o"></i> Delete</a>';
                     return $btn;
                 })
@@ -107,6 +109,8 @@ class VouchersController extends Controller
     {
         $data['status'] = $this->voucherStatus;
         $data['discountType'] = $this->discountType;
+        $data['buyVoucherWith'] = $this->buyVoucherWith;
+        $data['item_lists'] = Items::get();
         $data['outlet_lists'] = Outlet::Where('status',1)->get();
         $data['vouchertype_list'] = VoucherType::Where('status', 1)->get();
         return view('pages.voucher.add',$data);
@@ -119,17 +123,38 @@ class VouchersController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            
+            'voucher_name' => 'Required',
+            'voucher_name.unique' => 'Name Already Assigned',
+            'outlet_ids' => 'Required',
+            'voucher_type' => 'Required',
+            'max_qty' => 'Required',
+            'single_user_qty' => 'Required',
+            'sale_start_date' => 'Required',
+            'sale_end_date' => 'Required',
+            'validity_period' => 'Required',
+            'applicable_to_items' => 'Required',
+            'discount_type' => 'Required',
+            'voucher_value' => 'Required',
+            'buy_voucher_with' => 'Required',
+            'voucher_description' => 'Required'
+        ];
         $request->validate([
-                        'voucher_name' => 'required',
+                        'voucher_name' => 'required|unique:vouchers',
                         'outlet_ids' => 'required',
                         'voucher_type' => 'required',
-                        'max_qty' => 'required',
+                        'max_qty' => 'required|numeric',
+                        'single_user_qty' => 'required|numeric',
                         'sale_start_date' => 'required',
                         'sale_end_date' => 'required',
+                        'validity_period' => 'required|numeric',
+                        'applicable_to_items' => 'required',
                         'discount_type' => 'required',
-                        'voucher_value' => 'required',
+                        'voucher_value' => 'required|numeric',
+                        'buy_voucher_with' => 'required',
                         'voucher_description' => 'required'
-                    ]);
+                    ], $messages);
         if ($request->hasFile('voucher_image')) {
             $imageName = time().'_voucher.' . $request->file('voucher_image')->getClientOriginalExtension();
             $request->file('voucher_image')->move(
@@ -139,7 +164,9 @@ class VouchersController extends Controller
             $imageName = '';
         }
         $outlet_ids   = implode(',', $request->outlet_ids);
+        $applicable_to_items   = implode(',', $request->applicable_to_items);
         $voucher_code = 'v-bkksub'.$request->discount_type.$this->generateVoucherCode();
+        $buy_voucher_with = [["points"=> $request->buy_voucher_with_points_value, "wallet_credit"=> $request->buy_voucher_with_wallet_credits_value]];
         Voucher::insert([
                     'outlet_ids'   => $outlet_ids,
                     'voucher_code' => $voucher_code,
@@ -148,10 +175,12 @@ class VouchersController extends Controller
                     'voucher_description' => $request->voucher_description,
                     'sale_start_date' => $request->sale_start_date,
                     'sale_end_date' => $request->sale_end_date,
+                    'validity_period' => $request->validity_period,
+                    'applicable_to_items' => $applicable_to_items,
                     'discount_type' => $request->discount_type,
                     'voucher_value' => $request->voucher_value,
                     'max_discount_amount' => $request->max_discount_amount,
-                    'total_required_points' => $request->total_required_points,
+                    'buy_voucher_with' => json_encode($buy_voucher_with),
                     'tAndC' => $request->tAndC,
                     'max_qty' => $request->max_qty,
                     'single_user_qty' => $request->single_user_qty,
@@ -159,6 +188,58 @@ class VouchersController extends Controller
                     'status' => $request->status,
                     'created_by' => $request->user()->id
                 ]);
+
+                if (isset($request->birthday)) {
+                    $voucher_code1 = 'v-bkksub'.$request->discount_type.$this->generateVoucherCode();
+                    Voucher::insert([
+                        'outlet_ids'   => $outlet_ids,
+                        'voucher_code' => $voucher_code1,
+                        'voucher_type_id' => $request->voucher_type,
+                        'voucher_name' => $request->voucher_name,
+                        'voucher_description' => $request->voucher_description,
+                        'sale_start_date' => $request->sale_start_date,
+                        'sale_end_date' => $request->sale_end_date,
+                        'validity_period' => $request->validity_period,
+                        'applicable_to_items' => $applicable_to_items,
+                        'discount_type' => $request->discount_type,
+                        'voucher_value' => $request->voucher_value,
+                        'max_discount_amount' => $request->max_discount_amount,
+                        'buy_voucher_with' => json_encode($buy_voucher_with),
+                        'tAndC' => $request->tAndC,
+                        'max_qty' => $request->max_qty,
+                        'single_user_qty' => $request->single_user_qty,
+                        'voucher_image' => $imageName,
+                        'free_voucher_type' => 'birthday',
+                        'status' => $request->status,
+                        'created_by' => $request->user()->id
+                    ]);
+                }
+
+                if (isset($request->welcome)) {
+                    $voucher_code2 = 'v-bkksub'.$request->discount_type.$this->generateVoucherCode();
+                    Voucher::insert([
+                        'outlet_ids'   => $outlet_ids,
+                        'voucher_code' => $voucher_code2,
+                        'voucher_type_id' => $request->voucher_type,
+                        'voucher_name' => $request->voucher_name,
+                        'voucher_description' => $request->voucher_description,
+                        'sale_start_date' => $request->sale_start_date,
+                        'sale_end_date' => $request->sale_end_date,
+                        'validity_period' => $request->validity_period,
+                        'applicable_to_items' => $applicable_to_items,
+                        'discount_type' => $request->discount_type,
+                        'voucher_value' => $request->voucher_value,
+                        'max_discount_amount' => $request->max_discount_amount,
+                        'buy_voucher_with' => json_encode($buy_voucher_with),
+                        'tAndC' => $request->tAndC,
+                        'max_qty' => $request->max_qty,
+                        'single_user_qty' => $request->single_user_qty,
+                        'voucher_image' => $imageName,
+                        'free_voucher_type' => 'welcome',
+                        'status' => $request->status,
+                        'created_by' => $request->user()->id
+                    ]);
+                }
 
         return redirect()->route('vouchers.index')->with('success','Voucher Information added successfully!');
     }
