@@ -146,17 +146,17 @@ Route::get('db', function () {
         'name' => "Admin",
         'guard_name' => "Web"
     ]);
-    if ($role->save()) {
-        return response()->json(['res' => 'Successful']);
-    }
+    // if ($role->save()) {
+    //     // return response()->json(['res' => 'Successful']);
+    // }
 
     $role_user = Role_user::create([
         'user_id' => 1,
         'role_id' => 1,
     ]);
-    if ($role_user->save()) {
-        return response()->json(['res' => 'Successful']);
-    }
+    // if ($role_user->save()) {
+    //     // return response()->json(['res' => 'Successful']);
+    // }
 
     // User::select("*")->whereNotIn('id', [1])->delete();
     // UserCode::select("*")->delete();
@@ -174,9 +174,9 @@ Route::get('db', function () {
         'created_at' => Carbon::now()->format('Y-m-d'),
         'status'=> 1,
     ]);
-    if ($outlet->save()) {
-        return response()->json(['res' => 'Successful']);
-    }
+    // if ($outlet->save()) {
+    //     // return response()->json(['res' => 'Successful']);
+    // }
 
 });
 
