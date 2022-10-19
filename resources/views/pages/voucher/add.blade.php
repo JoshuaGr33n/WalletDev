@@ -140,23 +140,27 @@
                     <input type="text" maxlength="4" class="form-control number" name="max_discount_amount" id="max_discount_amount" value="{{old('max_discount_amount')}}" placeholder="Ex: 5.00">
                   </div>
                 </div>
-                <div class="form-group">
-                  <label for="buy_voucher_with" class="col-lg-4 col-sm-4 control-label">Buy Voucher With<span class="text-danger">*</span></label>
+                <div class="form-group @error('buy_voucher_with') has-error @enderror">
+                  <label for="buy_voucher_with" class="col-lg-4 col-sm-4 control-label">Buy Voucher With <span class="text-danger">*</span></label>
                   <div class="col-lg-8">
                     {!! Form::select('buy_voucher_with', $buyVoucherWith, null, ['id'=>'buy_voucher_with', 'class' => 'form-control', 'onchange' => "buyWith(this.value);"]) !!}
+                    @error('buy_voucher_with')
+                    <p class="help-block">{{ $message }}</p>
+                    @enderror
                   </div>
+                 
                 </div>
                 <div class="form-group" id="buy_voucher_with_points">
-                  <label for="buy_voucher_with_points_value" class="col-sm-4 control-label">Total Required Points</label>
+                  <label for="buy_voucher_with_points_value" class="col-sm-4 control-label">Total Required Points <span class="text-danger">*</span></label>
                   <div class="col-sm-8">
-                    <input type="text" name="buy_voucher_with_points_value" id="buy_voucher_with_points_value" class="form-control number" value="{{old('buy_voucher_with_points_value')}}" placeholder="Total Required Points">
+                    <input type="text" oninvalid="this.setCustomValidity('Total Required Point is Required')" oninput="this.setCustomValidity('')" name="buy_voucher_with_points_value" id="buy_voucher_with_points_value" class="form-control number" value="{{old('buy_voucher_with_points_value')}}" placeholder="Total Required Points">
                     <div id="msg"></div>
                   </div>
                 </div>
                 <div class="form-group" id="buy_voucher_with_wallet_credits">
-                  <label for="buy_voucher_with_wallet_credits_value" class="col-sm-4 control-label">Total Required Wallet Credits</label>
+                  <label for="buy_voucher_with_wallet_credits_value" class="col-sm-4 control-label">Total Required Wallet Credits <span class="text-danger">*</span></label>
                   <div class="col-sm-8">
-                    <input type="text" name="buy_voucher_with_wallet_credits_value" id="buy_voucher_with_wallet_credits_value" class="form-control number" value="{{old('buy_voucher_with_wallet_credits_value')}}" placeholder="Total Required Wallet Credit">
+                    <input type="text" oninvalid="this.setCustomValidity('Total Wallet Credit is Required')" oninput="this.setCustomValidity('')" name="buy_voucher_with_wallet_credits_value" id="buy_voucher_with_wallet_credits_value" class="form-control number" value="{{old('buy_voucher_with_wallet_credits_value')}}" placeholder="Total Required Wallet Credit">
                   </div>
                 </div>
 
@@ -292,6 +296,7 @@
         $('#voucher_value_lbl').html('Voucher Value (%)<span class="text-danger">*</span>');
       } else if (type == 2) {
         $('#max_discount_amt_lbl').hide();
+        $('#max_discount_amount').val(0.00);
         $('#voucher_value_lbl').html('Voucher Value (RM)<span class="text-danger">*</span>');
       }
     } else {
@@ -304,7 +309,7 @@
   window.onload = function() {
     document.getElementById('buy_voucher_with_wallet_credits').style.display = 'none';
     document.getElementById('buy_voucher_with_points').style.display = 'none';
-    // document.getElementById('msg').style.display = 'none';
+ 
   };
 
   function buyWith(criteria) {
@@ -326,28 +331,44 @@
 
 
 
-  $("#buy_voucher_with").focusout(function() {
+  $("#buy_voucher_with").change(function() {
     if ($(this).val() == 1) {
+     
+      $('#buy_voucher_with_points_value').attr('required', '');
+      $('#buy_voucher_with_wallet_credits_value').removeAttr('required', '');
+      $('#buy_voucher_with_wallet_credits_value').val(null);
 
+      window.onload = function() {
+        document.getElementById('buy_voucher_with_points').style.display = 'block';
+      };
 
-      if ($('#buy_voucher_with_points_value').val().length < 1) {
-          $('#buy_voucher_with_points_value').focus();
-          $('#msg').html('<span class="text-danger">This Field is required</span>');
-      } else {
-          $('#msg').hide();
-      }
 
     } else if ($(this).val() == 2) {
       $('#buy_voucher_with_wallet_credits_value').attr('required', '');
       $('#buy_voucher_with_points_value').removeAttr('required', '');
-      // $('#buy_voucher_with_wallet_credits_value').attr('data-error', 'Required.');
+      $('#buy_voucher_with_points_value').val(null);
+    
+      window.onload = function() {
+        document.getElementById('buy_voucher_with_wallet_credits_value').style.display = 'block';
+      };
 
     } else if ($(this).val() == 3) {
       $('#buy_voucher_with_points_value').attr('required', '');
-      // $('#buy_voucher_with_points_value').attr('data-error', 'Required.');
-
       $('#buy_voucher_with_wallet_credits_value').attr('required', '');
-      // $('#buy_voucher_with_wallet_credits_value').attr('data-error', 'Required.');
+    
+      window.onload = function() {
+        document.getElementById('buy_voucher_with_wallet_credits').style.display = 'block';
+        document.getElementById('buy_voucher_with_points').style.display = 'block';
+       
+      };
+    } else if ($(this).val() == '') {
+      $('#buy_voucher_with_wallet_credits').hide();
+      $('#buy_voucher_with_points').hide();
+      window.onload = function() {
+        document.getElementById('buy_voucher_with_wallet_credits').style.display = 'none';
+        document.getElementById('buy_voucher_with_points').style.display = 'none';
+     
+      };
     }
   });
   $("#buy_voucher_with").trigger("change");

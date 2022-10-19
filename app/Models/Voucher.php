@@ -8,6 +8,10 @@ class Voucher extends Model
 {
     use SoftDeletes;
     protected $table = 'vouchers';
+    
+    protected $fillable = [
+        'status' 
+    ];
 
     public function voucherType()
     {

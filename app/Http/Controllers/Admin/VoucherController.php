@@ -10,15 +10,16 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Datatables;
 use DB;
+use App\Models\BundleVouchers;
 
 class VoucherController extends Controller
 {
 
     public function __construct()
     {
-        $this->voucherStatus = ['1' => 'Active','2' => 'Inactive'];
-        $this->statusLabel   = ['1' => 'Active','2' => 'Inactive','3' => 'Expired'];
-        $this->discountType  = ['1' => 'Percentage','2' => 'Fixed Amount'];
+        $this->voucherStatus = ['1' => 'Active', '2' => 'Inactive'];
+        $this->statusLabel   = ['1' => 'Active', '2' => 'Inactive', '3' => 'Expired'];
+        $this->discountType  = ['1' => 'Percentage', '2' => 'Fixed Amount'];
         $this->defaultPassword = 'wallet@123';
         $this->middleware('AdminAccess'); // Allows Access to Admin
     }
@@ -29,9 +30,9 @@ class VoucherController extends Controller
      */
     public function index(Request $request)
     {
-        $voucherLists = Voucher::WhereDate('sale_end_date', '<', date('Y-m-d'))->where('status','1')->get();
+        $voucherLists = Voucher::WhereDate('sale_end_date', '<', date('Y-m-d'))->where('status', '1')->get();
         //UPDATE EXPIRED VOUCHER STATUS
-        if($voucherLists){
+        if ($voucherLists) {
             foreach ($voucherLists as $key => $value) {
                 Voucher::Where('id', $value->id)->update(array('status' => 3, 'updated_at' => date('Y-m-d H:i:s')));
             }
@@ -68,13 +69,13 @@ class VoucherController extends Controller
                     if (empty($data->sale_start_date)) {
                         return 'N/A';
                     }
-                    return date('Y-m-d',strtotime($data->sale_start_date));
+                    return date('Y-m-d', strtotime($data->sale_start_date));
                 })
                 ->addColumn('sale_end_date', function ($data) {
                     if (empty($data->sale_end_date)) {
                         return 'N/A';
                     }
-                    return date('Y-m-d',strtotime($data->sale_end_date));
+                    return date('Y-m-d', strtotime($data->sale_end_date));
                 })
                 ->addColumn('status', function ($data) {
                     if (empty($data->status)) {
@@ -85,7 +86,7 @@ class VoucherController extends Controller
                 ->addColumn('action', function ($row) {
 
                     $btn = '<a class="btn btn-info btn-xs" href="' . route('voucher.edit', ['id' => $row->id]) . '" data-toggle="tooltip" data-placement="top" title="Edit Voucher"><i class="fa fa-edit"></i> Edit</a>&nbsp;';
-                    $btn .= '<a class="btn btn-danger btn-xs deleteVoucher" href="javascript:;" data-voucher="'.$row->id.'" data-toggle="tooltip" data-placement="top" title="Delete voucher"><i class="fa fa-trash-o"></i> Delete</a>';
+                    $btn .= '<a class="btn btn-danger btn-xs deleteVoucher" href="javascript:;" data-voucher="' . $row->id . '" data-toggle="tooltip" data-placement="top" title="Delete voucher"><i class="fa fa-trash-o"></i> Delete</a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -106,8 +107,8 @@ class VoucherController extends Controller
     {
         $data['status'] = $this->voucherStatus;
         $data['discountType'] = $this->discountType;
-        $data['outlet_lists'] = Outlet::Where('status',1)->get();
-        return view('pages.voucher.add',$data);
+        $data['outlet_lists'] = Outlet::Where('status', 1)->get();
+        return view('pages.voucher.add', $data);
     }
     /**
      * Store a newly created resource in storage.
@@ -118,40 +119,41 @@ class VoucherController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-                        'voucher_name' => 'required',
-                        'outlet_ids' => 'required',
-                        'sale_start_date' => 'required',
-                        'sale_end_date' => 'required',
-                        'discount_type' => 'required',
-                        'voucher_value' => 'required'
-                    ]);
+            'voucher_name' => 'required',
+            'outlet_ids' => 'required',
+            'sale_start_date' => 'required',
+            'sale_end_date' => 'required',
+            'discount_type' => 'required',
+            'voucher_value' => 'required'
+        ]);
         if ($request->hasFile('voucher_image')) {
-            $imageName = time().'_voucher.' . $request->file('voucher_image')->getClientOriginalExtension();
+            $imageName = time() . '_voucher.' . $request->file('voucher_image')->getClientOriginalExtension();
             $request->file('voucher_image')->move(
-                base_path() . '/public/uploads/voucher/', $imageName
-                );
-        }else{
+                base_path() . '/public/uploads/voucher/',
+                $imageName
+            );
+        } else {
             $imageName = '';
         }
         $outlet_ids   = implode(',', $request->outlet_ids);
-        $voucher_code = 'v-bkksub'.$request->discount_type.$this->generateVoucherCode();
+        $voucher_code = 'v-bkksub' . $request->discount_type . $this->generateVoucherCode();
         Voucher::insert([
-                    'outlet_ids'   => $outlet_ids,
-                    'voucher_code' => $voucher_code,
-                    'voucher_name' => $request->voucher_name,
-                    'voucher_description' => $request->voucher_description,
-                    'sale_start_date' => $request->sale_start_date,
-                    'sale_end_date' => $request->sale_end_date,
-                    'discount_type' => $request->discount_type,
-                    'voucher_value' => $request->voucher_value,
-                    'total_required_points' => $request->total_required_points,
-                    'tAndC' => $request->tAndC,
-                    'max_qty' => $request->max_qty,
-                    'single_user_qty' => $request->single_user_qty,
-                    'voucher_image' => $imageName,
-                    'status' => $request->status,
-                    'created_by' => $request->user()->id
-                ]);
+            'outlet_ids'   => $outlet_ids,
+            'voucher_code' => $voucher_code,
+            'voucher_name' => $request->voucher_name,
+            'voucher_description' => $request->voucher_description,
+            'sale_start_date' => $request->sale_start_date,
+            'sale_end_date' => $request->sale_end_date,
+            'discount_type' => $request->discount_type,
+            'voucher_value' => $request->voucher_value,
+            'total_required_points' => $request->total_required_points,
+            'tAndC' => $request->tAndC,
+            'max_qty' => $request->max_qty,
+            'single_user_qty' => $request->single_user_qty,
+            'voucher_image' => $imageName,
+            'status' => $request->status,
+            'created_by' => $request->user()->id
+        ]);
 
         return redirect()->route('voucher.index');
     }
@@ -175,11 +177,11 @@ class VoucherController extends Controller
      */
     public function edit($id)
     {
-        $data['voucherInfo'] = Voucher::findOrFail($id);//
+        $data['voucherInfo'] = Voucher::findOrFail($id); //
         $data['status'] = $this->voucherStatus;
         $data['discountType'] = $this->discountType;
-        $data['outlet_lists'] = Outlet::Where('status',1)->get();
-        return view('pages.voucher.edit',$data);
+        $data['outlet_lists'] = Outlet::Where('status', 1)->get();
+        return view('pages.voucher.edit', $data);
     }
 
     /**
@@ -192,13 +194,13 @@ class VoucherController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-                        'voucher_name' => 'required',
-                        'outlet_ids' => 'required',
-                        'sale_start_date' => 'required',
-                        'sale_end_date' => 'required',
-                        'discount_type' => 'required',
-                        'voucher_value' => 'required'
-                    ]);
+            'voucher_name' => 'required',
+            'outlet_ids' => 'required',
+            'sale_start_date' => 'required',
+            'sale_end_date' => 'required',
+            'discount_type' => 'required',
+            'voucher_value' => 'required'
+        ]);
         $voucher = Voucher::find($id);
         $outlet_ids = implode(',', $request->outlet_ids);
         $voucher->outlet_ids = $outlet_ids;
@@ -213,13 +215,14 @@ class VoucherController extends Controller
         $voucher->max_qty = $request->max_qty;
         $voucher->single_user_qty = $request->single_user_qty;
         if ($request->hasFile('voucher_image')) {
-            $imageName = time().'_voucher.' . $request->file('voucher_image')->getClientOriginalExtension();
+            $imageName = time() . '_voucher.' . $request->file('voucher_image')->getClientOriginalExtension();
             $request->file('voucher_image')->move(
-                base_path() . '/public/uploads/voucher/', $imageName
+                base_path() . '/public/uploads/voucher/',
+                $imageName
             );
             $voucher->voucher_image = $imageName;
-            if($request->current_voucher_image){
-                unlink(base_path() . '/public/uploads/voucher/'.$request->current_voucher_image);
+            if ($request->current_voucher_image) {
+                unlink(base_path() . '/public/uploads/voucher/' . $request->current_voucher_image);
             }
         }
         $voucher->status = $request->status;
@@ -236,16 +239,26 @@ class VoucherController extends Controller
      */
     public function destroy(Request $request)
     {
-        $category = Voucher::find($request->id);
-        $category->delete();
-        return redirect()->route('voucher.index');
-    }
-    function generateVoucherCode(){
-        mt_srand((double)microtime()*10000);
-        $charid = md5(uniqid(rand(), true));
-        $c = unpack("C*",$charid);
-        $c = implode("",$c);
+        // $query = BundleVouchers::query();
+        // $data = $query->orWhere('vouchers', 'LIKE', '%' . $request->id . '%')->get();
 
-        return substr($c,0,12);
+        // foreach ($data as $key => $value) {
+        //     $list = explode(',', $value['vouchers']);
+        //     $final_list = array_diff($list, array($request->id));
+        //     $cc = implode(',', $final_list);
+        //     $query->update(array('vouchers' => $cc));
+        // }
+        // $category = Voucher::find($request->id);
+        // $category->delete();
+
+    }
+    function generateVoucherCode()
+    {
+        mt_srand((float)microtime() * 10000);
+        $charid = md5(uniqid(rand(), true));
+        $c = unpack("C*", $charid);
+        $c = implode("", $c);
+
+        return substr($c, 0, 12);
     }
 }
